@@ -28,6 +28,8 @@ If you have any questions or suggestions, please contact us through the followin
 Thank you for your use and support!
 
 
+
+
 # 海螺视频生成API代理
 
 ## 项目简介
@@ -56,3 +58,9 @@ Thank you for your use and support!
 
 
 感谢您的使用与支持！
+
+
+![添加任务示例](images/add_task.png)
+![任务列表](images/task_list.png)
+![账号列表](images/account_list.png)
+

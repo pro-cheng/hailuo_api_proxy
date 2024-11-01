@@ -19,6 +19,12 @@ Currently, this service is open for free use. You can experience it directly thr
 
 No registration or login is required, and you can use all features directly.
 
+### API Documentation
+
+For detailed API documentation, please visit:
+
+- [API Documentation (English)](http://hailuo.st-ai.top/docs)
+
 ## Contact Information
 
 If you have any questions or suggestions, please contact us through the following ways:
@@ -50,6 +56,12 @@ Thank you for your use and support!
 [http://hailuo.st-ai.top/public](http://hailuo.st-ai.top/public)
 
 无需注册或登录，直接访问即可使用所有功能。
+
+### API 文档
+
+有关详细的 API 文档，请访问：
+
+- [API 文档（中文）](http://hailuo.st-ai.top/docs)
 
 ## 联系方式
 

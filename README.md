@@ -77,4 +77,5 @@ Thank you for your use and support!
 ![添加任务示例](images/add_task.png)
 ![任务列表](images/task_list.png)
 ![账号列表](images/account_list.png)
+![接口文档](images/api.png)
 

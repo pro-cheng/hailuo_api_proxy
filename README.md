@@ -8,6 +8,7 @@ This project is a conch video generation API proxy, designed to provide the foll
 - **Multi-account Management**: Support unified management of multiple accounts, making it easy for users to switch and operate.
 - **Task Management**: Provide functions for task creation, monitoring, and management.
 - **Automatic Task Submission**: Automate the task submission process to reduce manual intervention.
+- **Kling Account Hosting**: Support for managing Kling accounts, including task creation and management.
 
 Additionally, this project supports interface integration, making it easy to integrate with other systems.
 
@@ -46,6 +47,7 @@ Thank you for your use and support!
 - **多账号管理**：支持多个账号的统一管理，方便用户切换和操作。
 - **任务管理**：提供任务的创建、监控和管理功能。
 - **自动任务提交**：自动化任务提交流程，减少人工干预。
+- **可灵账号托管**：支持可灵账号的管理，包括任务创建和管理。
 
 此外，该项目还支持接口对接，方便与其他系统集成。
 

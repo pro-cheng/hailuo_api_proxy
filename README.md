@@ -35,7 +35,12 @@ If you have any questions or suggestions, please contact us through the followin
 Thank you for your use and support!
 
 
+### 构建多平台推送
+
+docker buildx build --platform linux/amd64,linux/arm64 -t hexiaochun/hailuo_api_proxy:latest --push .
+
 ### 构建Docker镜像
+
 
 要构建Docker镜像，请在项目根目录下运行以下命令：
 
@@ -44,14 +49,18 @@ docker build -t hailuo_api_proxy .
 docker run -d -p 8130:8000 hailuo_api_proxy
 
 api 地址：http://127.0.0.1:8130/docs
+
 web 地址：http://127.0.0.1:8130/public
+
 admin地址：http://127.0.0.1:8130/admin
+
 账号：admin
+
 密码：hailuo888!!!
 
 ### 在线的docker一键部署
 
-docker run -d -p 8130:8000 hexiaochun/hailuo_api_proxy
+docker run -d -p 8130:8000 hexiaochun/hailuo_api_proxy:latest
 
 
 

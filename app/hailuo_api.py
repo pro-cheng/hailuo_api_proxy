@@ -10,12 +10,11 @@ from oss2 import StsAuth, Bucket
 from uuid import uuid4
 import os
 
+
 # 设备信息有效期
 DEVICE_INFO_EXPIRES = 10800
 # 伪装headers
 FAKE_HEADERS = {
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
     "Cache-Control": "no-cache",
     "Origin": "https://hailuoai.video/",
@@ -23,18 +22,18 @@ FAKE_HEADERS = {
     "Priority": "u=1, i",
     "Sec-Ch-Ua": '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
     "Sec-Ch-Ua-Mobile": "?0",
-    "Sec-Ch-Ua-Platform": '"Windows"',
+    "Sec-Ch-Ua-Platform": '"macOS"',
     "Sec-Fetch-Dest": "empty",
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Site": "same-origin",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
 }
 
 # 伪装数据
 FAKE_USER_DATA = {
     "device_platform": "web",
     "app_id": "3001",
-    "version_code": "22201",
+    "version_code": "22202",
     "uuid": None,
     "device_id": None,
     "lang": "en",
@@ -59,14 +58,15 @@ device_info_request_queue_map = {}
 def request_device_info(token):
     if token in device_info_request_queue_map:
         print(f"Token: {token} in device_info_request_queue_map",device_info_request_queue_map[token])
-        if int(time.time()) < device_info_request_queue_map[token]["refreshTime"]:
+        if device_info_request_queue_map[token] and int(time.time()) < device_info_request_queue_map[token]["refreshTime"]:
             return device_info_request_queue_map[token]
     
-    device_info_request_queue_map[token] = []
+    device_info_request_queue_map[token] = {}
     
     try:
         user_id = str(uuid.uuid4())
         result = request("POST", "/v1/api/user/device/register", {"uuid": user_id}, token, {"userId": user_id}, {"params": FAKE_USER_DATA})
+        print(result,"result")
         device_id_str = check_result(result)
         device_info = {
             "deviceId": device_id_str,
@@ -126,7 +126,7 @@ def request(method, uri, data, token, device_info, options=None):
         options = {}
     else:
       FAKE_USER_DATA.update(options.get("params", {}))
-    unix = str(int(time.time()))
+    unix = str(int(time.time())*1000)
     # unix = "1729176517000"
     
     # print(FAKE_USER_DATA,'FAKE_USER_DATA')
@@ -222,9 +222,10 @@ def gen_video(token,  desc,file_path):
   fileList = []
   if file_path:
     ali_res = request("GET","/v1/api/files/request_policy",{},token,device_info)
-    # print(ali_res)
+    print(ali_res)
     file_id,file_name,file_type = upload_to_oss(ali_res['data']['accessKeyId'], ali_res['data']['accessKeySecret'], ali_res['data']['securityToken'], file_path, ali_res["data"]["endpoint"] , ali_res['data']['bucketName'],ali_res['data']['dir'],token,device_info)
     fileList.append({"id":file_id,"name":file_name,"type":file_type})
+    print(fileList,"fileList")
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
   res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":""}, token, device_info)
   print("gen_video res",res)
@@ -249,10 +250,13 @@ def get_video_status(token,video_id):
   
   
 if __name__ == "__main__":
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM2MzcxNDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiJ9fQ.xDVGZC8APB6Kdf_rJgTDZu52-VPbbkYdI3NEXFXZAzo"
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
-    res = get_user_info(token)
-    print(res)
+    # res = get_user_info(token)
+    # print(res)
+    
+    # res =  request_device_info(token)
+    # print(res)
     # res = get_account_status(token)
     # print(res)
     # res =  gen_video(token, "")
@@ -266,8 +270,8 @@ if __name__ == "__main__":
     # # print(res)
     
     
-    # res = gen_video(token, "","/Users/hxc/Downloads/0c2a5859fe57499e919b097420d113f4~tplv-13w3uml6bg-resize_800_320.png")
-    # print(res)
+    res = gen_video(token, "女孩","images/2024-11-26/d7808681-ce04-460c-bf41-bb37a0367fe6.png")
+    print(res)
     
     # res = request("GET","/v1/api/files/request_policy",{},token,device_info)
     # print(res)

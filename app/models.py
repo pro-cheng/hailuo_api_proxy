@@ -82,6 +82,8 @@ class VideoTask(Base):
     u_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False, index=True)  # 记录任务所属的用户ID
     video_id = Column(String, nullable=False , index=True)  # 存储视频的唯一标识符
+    request_ip = Column(String, nullable=True)  # 记录请求的IP地址
+    model_id = Column(String, nullable=True)  # 记录模型的ID
     desc = Column(String, nullable=True)
     prompt = Column(String, nullable=True)  # 添加prompt字段
     image_url = Column(String, nullable=True)  # 添加image_url字段

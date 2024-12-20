@@ -214,7 +214,7 @@ def get_account_status(token ):
 
 
 
-def gen_video(token,  desc,file_path):
+def gen_video(token,  desc,file_path,model_id=""):
   
   device_info = request_device_info(token)
   print(device_info,"gen_video device_info")
@@ -227,7 +227,7 @@ def gen_video(token,  desc,file_path):
     fileList.append({"id":file_id,"name":file_name,"type":file_type})
     print(fileList,"fileList")
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
-  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":""}, token, device_info)
+  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id}, token, device_info)
   print("gen_video res",res)
   return res
 

@@ -56,7 +56,7 @@ def add_new_task():
                     continue
                 
                 print(f"Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
-                res = gen_video(user_profile.token, task.prompt, task.image_url)
+                res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id)
                 task.video_id = res["data"]["id"]
                 task.status = VideoTaskStatus.CREATE
                 user_profile.work_count += 1

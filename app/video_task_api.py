@@ -32,6 +32,8 @@ class VideoTaskCreate(BaseModel):
     user_id: Optional[str] = None
     prompt: str = ''
     image_url: str = ''
+    request_ip: str = ''
+    model_id: str = ''
 
 def save_image_to_local(image_url: str):
     # 如果image_url为空，返回空路径
@@ -87,6 +89,8 @@ def create_video_task(video_task: VideoTaskCreate, db: Session = Depends(get_db)
         u_id=current_user.id,
         prompt=video_task.prompt,
         image_url=image_path,
+        request_ip=video_task.request_ip,
+        model_id=video_task.model_id,
         video_id="",  # 默认值
         coverURL="",  # 默认值
         videoURL="",  # 默认值
@@ -97,6 +101,7 @@ def create_video_task(video_task: VideoTaskCreate, db: Session = Depends(get_db)
         originFiles="[]",  # 默认值
         canAppeal=0,  # 默认值
         downloadURL=""  # 默认值
+        
     )
     db_video_task.created_at = datetime.now()
     db.add(db_video_task)

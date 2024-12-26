@@ -227,7 +227,7 @@ def gen_video(token,  desc,file_path,model_id=""):
     fileList.append({"id":file_id,"name":file_name,"type":file_type})
     print(fileList,"fileList")
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
-  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id}, token, device_info)
+  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
   print("gen_video res",res)
   return res
 

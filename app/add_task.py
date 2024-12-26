@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
 from .hailuo_api import gen_video
+import traceback
 
 def add_new_task():
     db: Session = SessionLocal()
@@ -70,5 +71,6 @@ def add_new_task():
                 task.failed_msg = str(e)
                 db.commit()
                 print("gen video error", task.id, e)
+                print(traceback.format_exc())
                 continue
     db.close()

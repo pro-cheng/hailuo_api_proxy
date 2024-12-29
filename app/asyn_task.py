@@ -38,12 +38,12 @@ def sync_hailuo_tasks():
                     continue
                 token = user.token
                 res = get_video_status(token,task.video_id)
-                if res and res['data'] and res['data']['videos']:
+                if res and res['data'] and res['data']['videoList']:
                     # Find the video that matches task.video_id
                     target_video = None
-                    for video in res['data']['videos']:
+                    for video in res['data']['videoList']:
                         if video['id'] == task.video_id:
-                            target_video = video
+                            target_video = video['videoAsset']
                             break    
                     if target_video:
                         task.status = VideoTaskStatus.HL_QUEUE
@@ -52,17 +52,18 @@ def sync_hailuo_tasks():
                             user.work_count -= 1 
                         elif target_video['status'] == 2:
                             task.status = VideoTaskStatus.SUCCESS
+                            task.videoURL = target_video['downloadURL']
                             user.work_count -= 1 
                         if target_video.get('message'):
                             task.failed_msg = target_video['message']
 
                         online_work_count = 0
-                        for tmp_video in res['data']['videos']:
-                            if tmp_video['status'] != 2 and tmp_video['status'] != 5:
+                        for tmp_video in res['data']['videoList']:
+                            if tmp_video['videoAsset']['status'] != 2 and tmp_video['videoAsset']['status'] != 5:
                                 online_work_count += 1 
                         user.work_count = online_work_count        
 
-                        task.videoURL = target_video['downloadURL']
+                        
                         task.coverURL = target_video['coverURL']
                         task.width = target_video['width']
                         task.height = target_video['height']

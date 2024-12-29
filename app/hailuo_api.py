@@ -243,7 +243,7 @@ def get_user_info(token):
 def get_video_status(token,video_id):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")
-  res = request("GET",'/api/multimodal/video/processing',{},token,device_info,{"params":{"idList":video_id}})
+  res = request("GET",'/v3/api/multimodal/video/processing',{},token,device_info,{"params":{"idList":video_id}})
   print(res)
   return res
   

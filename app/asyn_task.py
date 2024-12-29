@@ -39,12 +39,6 @@ def sync_hailuo_tasks():
                 token = user.token
                 res = get_video_status(token,task.video_id)
                 if res and res['data'] and res['data']['videos']:
-                    online_work_count = 0
-                    for tmp_video in res['data']['videos']:
-                        if tmp_video['status'] != 2 and tmp_video['status'] != 5:
-                            online_work_count += 1 
-                    user.work_count = online_work_count
-
                     # Find the video that matches task.video_id
                     target_video = None
                     for video in res['data']['videos']:
@@ -62,7 +56,13 @@ def sync_hailuo_tasks():
                         if target_video.get('message'):
                             task.failed_msg = target_video['message']
 
-                        task.videoURL = target_video['videoURL']
+                        online_work_count = 0
+                        for tmp_video in res['data']['videos']:
+                            if tmp_video['status'] != 2 and tmp_video['status'] != 5:
+                                online_work_count += 1 
+                        user.work_count = online_work_count        
+
+                        task.videoURL = target_video['downloadURL']
                         task.coverURL = target_video['coverURL']
                         task.width = target_video['width']
                         task.height = target_video['height']

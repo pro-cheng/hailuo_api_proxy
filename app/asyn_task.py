@@ -47,12 +47,16 @@ def sync_hailuo_tasks():
                             break    
                     if target_video:
                         task.status = VideoTaskStatus.HL_QUEUE
-                        if target_video['status'] == 5 or target_video['status'] == 14:
+                        if target_video['status'] == 1:
+                            task.percent = target_video['percent']
+                        elif target_video['status'] == 5 or target_video['status'] == 14:
                             task.status = VideoTaskStatus.FAILED
                             user.work_count -= 1 
                         elif target_video['status'] == 2:
                             task.status = VideoTaskStatus.SUCCESS
+                            task.percent = target_video['percent']
                             task.videoURL = target_video['downloadURL']
+                            task.downloadURL = target_video['downloadURL']
                             user.work_count -= 1 
                         if target_video.get('message'):
                             task.failed_msg = target_video['message']

@@ -239,7 +239,10 @@ def get_user_info(token):
 #   print(res)
   return res
 
-
+# status: 12,message: "Optimizing prompt in progress..."
+# status: 1, message: "Video generation is in progress. Exiting will not halt  video's creation process."
+# status: 2, 生成成功
+# status: 14,message: "There is an issue with the text content, try using different content"
 def get_video_status(token,video_id):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")
@@ -270,8 +273,8 @@ if __name__ == "__main__":
     # # print(res)
     
     
-    res = gen_video(token, "女孩","images/2024-11-26/d7808681-ce04-460c-bf41-bb37a0367fe6.png")
-    print(res)
+    # res = gen_video(token, "女孩","images/2024-11-26/d7808681-ce04-460c-bf41-bb37a0367fe6.png")
+    # print(res)
     
     # res = request("GET","/v1/api/files/request_policy",{},token,device_info)
     # print(res)

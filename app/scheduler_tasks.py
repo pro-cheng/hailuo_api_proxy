@@ -57,7 +57,7 @@ scheduler.add_job(perform_delete_images, 'interval', hours=5)
 scheduler.add_job(check_user_profiles, 'interval', minutes=60)
 
 # 添加第二个任务，每30分钟运行一次
-scheduler.add_job(clean_expired_tokens, 'interval', seconds=30)
+scheduler.add_job(clean_expired_tokens, 'interval', seconds=20)
 
 scheduler.add_job(sync_kling_task_info, 'interval', seconds=30)
 

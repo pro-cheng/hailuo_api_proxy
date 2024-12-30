@@ -99,6 +99,7 @@ class VideoTask(Base):
     originFiles = Column(String, nullable=False)  # 存储originFiles的JSON字符串
     canAppeal = Column(Integer, nullable=False)  # 使用Integer来表示布尔值
     downloadURL = Column(String, nullable=False)
+    percent = Column(Integer, nullable=False, default=0)  # 进度百分比
     created_at = Column(DateTime(timezone=True), server_default=func.now())  # 创建时间
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())  # 更新时间
 

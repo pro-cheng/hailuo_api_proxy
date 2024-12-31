@@ -58,7 +58,8 @@ def add_new_task():
                 
                 print(f"Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
                 res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id)
-                if (res['statusInfo']['code'] == 2400014 or res['statusInfo']['code'] == 2400007): 
+                # 2400002 There is an issue with the text content, try using different content
+                if (res['statusInfo']['code'] != 0): 
                     task.status = VideoTaskStatus.FAILED
                     task.failed_msg = res['statusInfo']['message']
                     db.commit()

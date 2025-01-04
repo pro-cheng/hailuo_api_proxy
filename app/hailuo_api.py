@@ -243,6 +243,7 @@ def get_user_info(token):
 # status: 1, message: "Video generation is in progress. Exiting will not halt  video's creation process."
 # status: 2, 生成成功
 # status: 14,message: "There is an issue with the text content, try using different content"
+# status: 7, message: "Failure to pass the review."
 def get_video_status(token,video_id):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")

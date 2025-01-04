@@ -12,11 +12,11 @@ def add_new_task():
     for user_profile in user_profiles:
         user_profile: UserProfile = user_profile
         
-        # 查询VideoTask 的任务，超过3个小时的就设置失败
+        # 查询VideoTask 的任务，超过1个小时的就设置失败
         tasks = db.query(VideoTask).filter(
             VideoTask.user_id == user_profile.user_id,
             VideoTask.status.in_([VideoTaskStatus.CREATE, VideoTaskStatus.HL_QUEUE, VideoTaskStatus.PROGRESS]),
-            VideoTask.created_at < datetime.now() - timedelta(hours=3)
+            VideoTask.created_at < datetime.now() - timedelta(hours=1)
         ).all()
         for task in tasks:
             task.status = VideoTaskStatus.FAILED

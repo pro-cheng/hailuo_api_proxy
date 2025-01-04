@@ -49,7 +49,7 @@ def sync_hailuo_tasks():
                         task.status = VideoTaskStatus.HL_QUEUE
                         if target_video['status'] == 1:
                             task.percent = target_video['percent']
-                        elif target_video['status'] == 5 or target_video['status'] == 14:
+                        elif target_video['status'] == 5 or target_video['status'] == 14 or target_video['status'] == 7:
                             task.status = VideoTaskStatus.FAILED
                             user.work_count -= 1 
                         elif target_video['status'] == 2:

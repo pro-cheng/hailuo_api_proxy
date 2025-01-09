@@ -66,7 +66,7 @@ def process_single_task(task_id: int, db_factory):
                     user.work_count -= 1
                 elif target_video['status'] == 2:
                     task.status = VideoTaskStatus.SUCCESS
-                    task.percent = target_video['percent']
+                    task.percent = 100
                     task.videoURL = target_video['downloadURL']
                     task.downloadURL = target_video['downloadURL']
                     user.work_count -= 1

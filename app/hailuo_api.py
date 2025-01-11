@@ -211,10 +211,7 @@ def get_account_status(token ):
 #   print("processing", api_res)
   return api_res
         
-
-
-
-def gen_video(token,  desc,file_path,model_id=""):
+def gen_video(token,desc,file_path,model_id,type):
   
   device_info = request_device_info(token)
   print(device_info,"gen_video device_info")
@@ -226,6 +223,12 @@ def gen_video(token,  desc,file_path,model_id=""):
     file_id,file_name,file_type = upload_to_oss(ali_res['data']['accessKeyId'], ali_res['data']['accessKeySecret'], ali_res['data']['securityToken'], file_path, ali_res["data"]["endpoint"] , ali_res['data']['bucketName'],ali_res['data']['dir'],token,device_info)
     fileList.append({"id":file_id,"name":file_name,"type":file_type})
     print(fileList,"fileList")
+    # 3:subject reference
+    if type == 3:
+      subject_detect_res = request("POST","/api/multimodal/subject/detect",{"fileID":file_id},token,device_info)
+      if subject_detect_res['statusInfo']['code'] != 0:
+        print(subject_detect_res)
+        return subject_detect_res
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
   res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
   print("gen_video res",res)
@@ -256,6 +259,13 @@ def get_video_status(token,video_id):
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
+    # res = gen_video(token, "田径比赛冲线","images/WX20241107-171054@2x.png","23021",3)
+    # print(res)
+
+    # res = get_video_status(token, 334012886839283714)
+    # print(res)
+    
+
     # res = get_user_info(token)
     # print(res)
     

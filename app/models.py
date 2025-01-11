@@ -83,6 +83,8 @@ class VideoTask(Base):
     user_id = Column(String, nullable=False, index=True)  # 记录任务所属的用户ID
     video_id = Column(String, nullable=False , index=True)  # 存储视频的唯一标识符
     request_ip = Column(String, nullable=True)  # 记录请求的IP地址
+    visitor_id = Column(String, nullable=True)  # 记录请求的浏览器指纹id
+    type = Column(Integer, nullable=False, default=0)  # 1:text to video 2:image to video 3:subject reference
     model_id = Column(String, nullable=True)  # 记录模型的ID
     desc = Column(String, nullable=True)
     prompt = Column(String, nullable=True)  # 添加prompt字段

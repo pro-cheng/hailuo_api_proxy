@@ -26,7 +26,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
         ).all()
         for task in tasks:
             task.status = VideoTaskStatus.FAILED
-            task.failed_msg = "任务超时"
+            task.failed_msg = "System busy. Please try again tomorrow."
             db.commit()
         
         # 更新工作计数
@@ -61,7 +61,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     continue
                 
                 print(f"Thread {thread_name} Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
-                res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id)
+                res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
                 
                 if res['statusInfo']['code'] != 0:
                     task.status = VideoTaskStatus.FAILED

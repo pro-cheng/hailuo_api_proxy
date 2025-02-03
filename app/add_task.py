@@ -2,12 +2,13 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
-from .hailuo_api import gen_video
+from .hailuo_api import gen_video, cancel_video
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 from sqlalchemy.orm import scoped_session, sessionmaker
 import threading
+import time
 
 def process_single_user(user_profile: UserProfile, db_factory):
     """处理单个用户的任务"""
@@ -25,21 +26,38 @@ def process_single_user(user_profile: UserProfile, db_factory):
             VideoTask.created_at < datetime.now() - timedelta(hours=1)
         ).all()
         for task in tasks:
+            try:
+              if task.video_id:
+                cancel_video(user_profile.token, task.video_id)
+                # user_profile.work_count -= 1
+            except Exception as e:
+              print(f"Thread {thread_name} TaskId {task.id}: Cancel Video Error: {e}")
+              print(traceback.format_exc())
+            task.status = VideoTaskStatus.FAILED
+            task.failed_msg = "System busy. Please try again tomorrow."
+            db.commit()
+            
+        tasks = db.query(VideoTask).filter(
+            VideoTask.user_id == user_profile.user_id,
+            VideoTask.status.in_([VideoTaskStatus.QUEUE]),
+            VideoTask.created_at < datetime.now() - timedelta(hours=3)
+        ).all()
+        for task in tasks:
             task.status = VideoTaskStatus.FAILED
             task.failed_msg = "System busy. Please try again tomorrow."
             db.commit()
         
         # 更新工作计数
-        work_count = db.query(VideoTask).filter(
-            VideoTask.user_id == user_profile.user_id,
-            VideoTask.status.in_([
-                VideoTaskStatus.CREATE,
-                VideoTaskStatus.HL_QUEUE,
-                VideoTaskStatus.PROGRESS
-            ])
-        ).count()
-        user_profile.work_count = work_count
-        db.commit()
+        # work_count = db.query(VideoTask).filter(
+        #     VideoTask.user_id == user_profile.user_id,
+        #     VideoTask.status.in_([
+        #         VideoTaskStatus.CREATE,
+        #         VideoTaskStatus.HL_QUEUE,
+        #         VideoTaskStatus.PROGRESS
+        #     ])
+        # ).count()
+        # user_profile.work_count = work_count
+        # db.commit()
         db.refresh(user_profile)
         
         if user_profile.work_count >= user_profile.concurrency_limit:
@@ -62,8 +80,9 @@ def process_single_user(user_profile: UserProfile, db_factory):
                 
                 print(f"Thread {thread_name} Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
                 res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
-                
+                time.sleep(1)
                 if res['statusInfo']['code'] != 0:
+                    user_profile.work_count -= 1
                     task.status = VideoTaskStatus.FAILED
                     task.failed_msg = res['statusInfo']['message']
                     db.commit()

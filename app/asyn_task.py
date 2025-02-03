@@ -75,13 +75,6 @@ def process_single_task(task_id: int, db_factory):
                 if target_video.get('message'):
                     task.failed_msg = target_video['message']
 
-                # 计算在线工作数量
-                online_work_count = sum(
-                    1 for video in res['data']['videoList']
-                    if video['videoAsset']['status'] not in [2, 5, 14, 7]
-                )
-                user.work_count = online_work_count
-
                 # 更新其他视频信息
                 task.coverURL = target_video['coverURL']
                 task.width = target_video['width']
@@ -90,7 +83,19 @@ def process_single_task(task_id: int, db_factory):
 
                 db.commit()
                 print(f"Thread {thread_name}: Successfully processed task {task_id}")
-                
+            else:
+                task.status = VideoTaskStatus.FAILED
+                task.failed_msg = f"Failed to generate video. Please retry."
+                db.commit()
+                print(f"Thread {thread_name}: Video {task.video_id} not found in response")
+
+            # 计算在线工作数量
+            online_work_count = sum(
+                1 for video in res['data']['videoList']
+                if video['videoAsset']['status'] not in [2, 5, 14, 7]
+            )
+            user.work_count = online_work_count
+            db.commit()
     except Exception as e:
         print(f"Thread {thread_name}: Error processing task {task_id}: {str(e)}")
         print(traceback.format_exc())

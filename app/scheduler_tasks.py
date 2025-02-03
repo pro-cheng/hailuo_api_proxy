@@ -4,12 +4,13 @@ import atexit
 from .add_task import add_new_task
 from .asyn_task import sync_hailuo_tasks
 from .database import SessionLocal
-from .models import UserProfile
+from .models import UserProfile,VideoTask,VideoTaskStatus
 from .user_profile_api import process_user_info
 from datetime import datetime, timedelta
 import os
 import shutil
 from .kling.kling_task import add_kling_new_task,sync_kling_task_info
+from .hailuo_api import get_video_status
 # 定义第一个定时任务
 def check_user_profiles():
     print("Checking user profiles...")
@@ -26,6 +27,32 @@ def check_user_profiles():
         db.close()
     
     # 这里可以添加你需要的检查逻辑
+
+def refresh_work_count():
+    print("Refreshing work count...")
+    # 获取数据库会话
+    db = SessionLocal()
+    try:
+        # 获取所有用户
+        user_profiles = db.query(UserProfile).all()
+        
+        for user_profile in user_profiles:
+            try:
+                task = db.query(VideoTask).filter(VideoTask.user_id == user_profile.user_id, VideoTask.status.in_([VideoTaskStatus.SUCCESS])).order_by(VideoTask.created_at.desc()).first()
+                if task:
+                    res = get_video_status(user_profile.token, task.video_id)
+                    if res and res['data'] and res['data']['videoList']:
+                        # 计算在线工作数量
+                        online_work_count = sum(
+                            1 for video in res['data']['videoList']
+                            if video['videoAsset']['status'] not in [2, 5, 14, 7]
+                        )
+                        user_profile.work_count = online_work_count
+                        db.commit()
+            except Exception as e:
+                print(f"Refresh work count error: {e}")
+    finally:
+        db.close()
 
 # 定义第二个定时任务
 def clean_expired_tokens():
@@ -64,6 +91,7 @@ scheduler.add_job(sync_kling_task_info, 'interval', seconds=30)
 # 添加第三个任务，每6秒运行一次
 scheduler.add_job(perform_frequent_task, 'interval', seconds=6, max_instances=1)
 
+scheduler.add_job(refresh_work_count, 'interval', minutes=20, max_instances=1)
 
 scheduler.start()
 

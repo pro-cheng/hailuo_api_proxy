@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
-from .hailuo_api import gen_video, cancel_video
+from .hailuo_api import gen_video, cancel_video, get_video_status
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
@@ -82,6 +82,21 @@ def process_single_user(user_profile: UserProfile, db_factory):
                 print(f"Thread {thread_name} Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
                 res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
                 time.sleep(1)
+                # 当前已有多个任务在队列中，只支持一次性生成0个
+                if res['statusInfo']['code'] == 2400013:
+                    # 重新获取work count
+                    task = db.query(VideoTask).filter(VideoTask.user_id == user_profile.user_id, VideoTask.status.in_([VideoTaskStatus.SUCCESS])).order_by(VideoTask.created_at.desc()).first()
+                    if task:
+                        res = get_video_status(user_profile.token, task.video_id)
+                        if res and res['data'] and res['data']['videoList']:
+                            # 计算在线工作数量
+                            online_work_count = sum(
+                                1 for video in res['data']['videoList']
+                                if video['videoAsset']['status'] not in [2, 5, 14, 7]
+                            )
+                            user_profile.work_count = online_work_count
+                            db.commit()
+                    break
                 if res['statusInfo']['code'] != 0:
                     user_profile.work_count -= 1
                     task.status = VideoTaskStatus.FAILED

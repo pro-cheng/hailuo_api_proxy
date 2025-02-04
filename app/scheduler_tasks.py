@@ -91,7 +91,7 @@ scheduler.add_job(sync_kling_task_info, 'interval', seconds=30)
 # 添加第三个任务，每6秒运行一次
 scheduler.add_job(perform_frequent_task, 'interval', seconds=6, max_instances=1)
 
-scheduler.add_job(refresh_work_count, 'interval', minutes=20, max_instances=1)
+scheduler.add_job(refresh_work_count, 'interval', minutes=15, max_instances=1)
 
 scheduler.start()
 

@@ -28,8 +28,9 @@ def process_single_user(user_profile: UserProfile, db_factory):
         for task in tasks:
             try:
               if task.video_id:
-                cancel_video(user_profile.token, task.video_id)
-                # user_profile.work_count -= 1
+                res = cancel_video(user_profile.token, task.video_id)
+                if res['statusInfo']['code'] == 0:
+                    user_profile.work_count -= 1
             except Exception as e:
               print(f"Thread {thread_name} TaskId {task.id}: Cancel Video Error: {e}")
               print(traceback.format_exc())

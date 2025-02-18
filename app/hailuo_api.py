@@ -247,10 +247,14 @@ def get_user_info(token):
 # status: 2, 生成成功
 # status: 14,message: "There is an issue with the text content, try using different content"
 # status: 7, message: "Failure to pass the review."
+# status: 22,message: "Account banned, unbanned by 2025-02-18 09:35:58.",
 def get_video_status(token,video_id):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")
-  res = request("GET",'/v3/api/multimodal/video/processing',{},token,device_info,{"params":{"idList":video_id}})
+  params = {}
+  if (video_id != 0):
+    params = {"params":{"idList":video_id}}
+  res = request("GET",'/v3/api/multimodal/video/processing',{},token,device_info,params)
   print(res)
   return res
   

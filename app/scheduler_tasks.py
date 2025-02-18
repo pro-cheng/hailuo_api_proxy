@@ -38,17 +38,15 @@ def refresh_work_count():
         
         for user_profile in user_profiles:
             try:
-                task = db.query(VideoTask).filter(VideoTask.user_id == user_profile.user_id, VideoTask.status.in_([VideoTaskStatus.SUCCESS])).order_by(VideoTask.created_at.desc()).first()
-                if task:
-                    res = get_video_status(user_profile.token, task.video_id)
-                    if res and res['data'] and res['data']['videoList']:
-                        # 计算在线工作数量
-                        online_work_count = sum(
-                            1 for video in res['data']['videoList']
-                            if video['videoAsset']['status'] not in [2, 5, 14, 7]
-                        )
-                        user_profile.work_count = online_work_count
-                        db.commit()
+                res = get_video_status(user_profile.token, 0)
+                if res and res['data'] and res['data']['videoList']:
+                    # 计算在线工作数量
+                    online_work_count = sum(
+                        1 for video in res['data']['videoList']
+                        if video['videoAsset']['status'] not in [2, 5, 14, 7]
+                    )
+                    user_profile.work_count = online_work_count
+                    db.commit()
             except Exception as e:
                 print(f"Refresh work count error: {e}")
     finally:

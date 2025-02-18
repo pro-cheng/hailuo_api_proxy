@@ -95,6 +95,14 @@ def process_single_user(user_profile: UserProfile, db_factory):
                         user_profile.work_count = online_work_count
                         db.commit()
                     break
+                # 封号
+                if res['statusInfo']['code'] == 22:
+                    user_profile.work_count -= 1
+                    task.status = VideoTaskStatus.FAILED
+                    task.failed_msg = 'All credits have been exhausted. Please try again tomorrow!'
+                    db.commit()
+                    print(f"Thread {thread_name}: processed user {user_profile.user_id} banned, {res['statusInfo']['message']}")
+                    break
                 if res['statusInfo']['code'] != 0:
                     user_profile.work_count -= 1
                     task.status = VideoTaskStatus.FAILED

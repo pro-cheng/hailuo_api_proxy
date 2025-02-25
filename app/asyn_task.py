@@ -74,6 +74,8 @@ def process_single_task(task_id: int, db_factory):
                 # 设置失败信息
                 if target_video.get('message'):
                     task.failed_msg = target_video['message']
+                if "<wait>" in task.failed_msg:
+                    task.failed_msg = "Queuing..."
 
                 # 更新其他视频信息
                 task.coverURL = target_video['coverURL']

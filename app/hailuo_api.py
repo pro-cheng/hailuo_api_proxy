@@ -265,9 +265,18 @@ def cancel_video(token, video_id):
     print(res)
     return res 
   
+def delete_video(token, video_id):
+    device_info = request_device_info(token)
+    print(device_info, "delete_video device_info")
+    res = request("POST", "/v2/api/multimodal/video/delete", {"videoID": video_id}, token, device_info)
+    print(res)
+    return res 
+
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
+    # delete_video(token, "350482372637220873")
+
     # res = gen_video(token, "田径比赛冲线","images/WX20241107-171054@2x.png","23021",3)
     # print(res)
 

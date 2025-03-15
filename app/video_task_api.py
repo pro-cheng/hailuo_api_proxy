@@ -17,6 +17,7 @@ from datetime import datetime
 from typing import Optional
 from .dependencies import get_current_user
 import random
+from .hailuo_api import delete_video
 router = APIRouter()
 
 
@@ -157,3 +158,47 @@ def get_video_task_by_task_id(task_id: str, db: Session = Depends(get_db), curre
     if video_task is None:
         raise HTTPException(status_code=404, detail="Video task not found")
     return video_task
+
+@router.delete("/video_task/{task_id}")
+def delete_video_task(task_id: str, db: Session = Depends(get_db), current_user: models.SystemUser = Depends(get_current_user)):
+    """
+    Delete a video task by its ID
+    :param task_id: The unique identifier of the video task
+    :param db: Database session
+    :param current_user: The authenticated user
+    :return: Success message
+    """
+    try:
+        # Convert string to UUID
+        task_uuid = uuid.UUID(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID format")
+
+    # Get the video task
+    video_task = db.query(VideoTask).filter(VideoTask.id == task_uuid, VideoTask.u_id == current_user.id).first()
+    if video_task is None:
+        raise HTTPException(status_code=404, detail="Video task not found")
+
+    # If the task has a video_id, delete it from hailuo
+    if video_task.video_id:
+        try:
+            # Get user profile to get token
+            user_profile = db.query(UserProfile).filter(UserProfile.user_id == video_task.user_id).first()
+            if user_profile and user_profile.token:
+                delete_video(user_profile.token, video_task.video_id)
+        except Exception as e:
+            # Log the error but continue with local deletion
+            print(f"Error deleting video from hailuo: {str(e)}")
+
+    # Delete the local image file if it exists
+    # if video_task.image_url and os.path.exists(video_task.image_url):
+    #     try:
+    #         os.remove(video_task.image_url)
+    #     except Exception as e:
+    #         print(f"Error deleting local image file: {str(e)}")
+
+    # Delete the task from database
+    db.delete(video_task)
+    db.commit()
+
+    return {"message": "Video task deleted successfully"}

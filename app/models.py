@@ -20,6 +20,8 @@ class UserProfile(Base):
     token = Column(String, nullable=False)  # 存储token
     concurrency_limit = Column(Integer, nullable=False, default=3)  # 并发个数限制，默认为1
     work_count = Column(Integer, nullable=False, default=0)  # 工作个数
+    img_concurrency_limit = Column(Integer, nullable=False, default=6)  # 生成图片并发个数限制，默认为1
+    img_work_count = Column(Integer, nullable=False, default=0)  # 生成图片工作个数
     created_at = Column(DateTime(timezone=True), server_default=func.now())  # 创建时间
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())  # 更新时间
 
@@ -82,6 +84,9 @@ class VideoTask(Base):
     u_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False, index=True)  # 记录任务所属的用户ID
     video_id = Column(String, nullable=False , index=True)  # 存储视频的唯一标识符
+    batch_id = Column(String, nullable=True)
+    batch_type = Column(Integer, nullable=False, default=0)
+    aspect_ratio = Column(String, nullable=True) 
     request_ip = Column(String, nullable=True)  # 记录请求的IP地址
     visitor_id = Column(String, nullable=True)  # 记录请求的浏览器指纹id
     type = Column(Integer, nullable=False, default=0)  # 1:text to video 2:image to video 3:subject reference

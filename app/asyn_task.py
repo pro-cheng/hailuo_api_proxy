@@ -45,42 +45,48 @@ def process_single_task(task_id: int, db_factory):
             
         # 获取视频状态
         token = user.token
-        res = get_video_status(token, task.video_id)
+        batch_id = task.video_id
+        if task.batch_type == 1:
+            batch_id = task.batch_id
+        res = get_video_status(token, batch_id, task.batch_type)
         
-        if res and res['data'] and res['data']['videoList']:
-            # 查找匹配的视频
-            target_video = None
-            for video in res['data']['videoList']:
-                if video['id'] == task.video_id:
-                    target_video = video['videoAsset']
+        if res['statusInfo']['code'] == 0:
+            # 查找匹配的assets
+            target_asset = None
+            for batch in res['data']['batchVideos']:
+                for asset in batch['assets']:
+                    if asset['id'] == task.video_id:
+                        target_asset = asset
+                        break
+                if target_asset:
                     break
-                    
-            if target_video:
+
+            if target_asset:
                 task.status = VideoTaskStatus.HL_QUEUE
                 
                 # 处理不同的视频状态
-                if target_video['status'] == 1:
-                    task.percent = target_video['percent']
-                elif target_video['status'] in [5, 14, 7]:
+                if target_asset['status'] == 1:
+                    task.percent = target_asset['percent']
+                elif target_asset['status'] in [5, 14, 7]:
                     task.status = VideoTaskStatus.FAILED
                     user.work_count -= 1
-                elif target_video['status'] == 2:
+                elif target_asset['status'] == 2:
                     task.status = VideoTaskStatus.SUCCESS
                     task.percent = 100
-                    task.videoURL = target_video['downloadURL']
-                    task.downloadURL = target_video['downloadURL']
+                    task.videoURL = target_asset['downloadURL']
+                    task.downloadURL = target_asset['downloadURL']
                     user.work_count -= 1
                 
                 # 设置失败信息
-                if target_video.get('message'):
-                    task.failed_msg = target_video['message']
+                if target_asset.get('message'):
+                    task.failed_msg = target_asset['message']
                 if "<wait>" in task.failed_msg:
                     task.failed_msg = "Queuing..."
 
                 # 更新其他视频信息
-                task.coverURL = target_video['coverURL']
-                task.width = target_video['width']
-                task.height = target_video['height']
+                task.coverURL = target_asset['coverURL']
+                task.width = target_asset['width']
+                task.height = target_asset['height']
                 task.updated_at = datetime.now()
 
                 db.commit()
@@ -92,11 +98,8 @@ def process_single_task(task_id: int, db_factory):
                 print(f"Thread {thread_name}: Video {task.video_id} not found in response")
 
             # 计算在线工作数量
-            online_work_count = sum(
-                1 for video in res['data']['videoList']
-                if video['videoAsset']['status'] not in [2, 5, 14, 7]
-            )
-            user.work_count = online_work_count
+            user.work_count = res['data']['processInfo']['onProcessingVideoNum']
+            user.img_work_count = res['data']['processInfo']['onProcessingImageNum']             
             db.commit()
     except Exception as e:
         print(f"Thread {thread_name}: Error processing task {task_id}: {str(e)}")

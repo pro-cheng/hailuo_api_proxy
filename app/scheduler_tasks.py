@@ -38,14 +38,12 @@ def refresh_work_count():
         
         for user_profile in user_profiles:
             try:
-                res = get_video_status(user_profile.token, 0)
-                if res and res['data'] and res['data']['videoList']:
+                # 重新获取work count
+                res = get_video_status(user_profile.token, 0, 0)
+                if res['statusInfo']['code'] == 0:
                     # 计算在线工作数量
-                    online_work_count = sum(
-                        1 for video in res['data']['videoList']
-                        if video['videoAsset']['status'] not in [2, 5, 14, 7]
-                    )
-                    user_profile.work_count = online_work_count
+                    user_profile.work_count = res['data']['processInfo']['onProcessingVideoNum']
+                    user_profile.img_work_count = res['data']['processInfo']['onProcessingImageNum']
                     db.commit()
             except Exception as e:
                 print(f"Refresh work count error: {e}")

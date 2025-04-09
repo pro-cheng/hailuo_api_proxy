@@ -234,6 +234,14 @@ def gen_video(token,desc,file_path,model_id,type):
   print("gen_video res",res)
   return res
 
+def gen_image(token,desc,model_id,aspectRatio):
+  
+  device_info = request_device_info(token)
+  print(device_info,"gen_image device_info")
+
+  res = request("POST", "/v1/api/multimodal/generate/image", {"desc":desc,"useOriginPrompt":False,"modelID":model_id, "aspectRatio":aspectRatio, "quantity": "1"}, token, device_info)
+  print("gen_image res",res)
+  return res
 
 
 def get_user_info(token):
@@ -248,13 +256,13 @@ def get_user_info(token):
 # status: 14,message: "There is an issue with the text content, try using different content"
 # status: 7, message: "Failure to pass the review."
 # status: 22,message: "Account banned, unbanned by 2025-02-18 09:35:58.",
-def get_video_status(token,video_id):
+def get_video_status(token, batch_id, batch_type):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")
   params = {}
-  if (video_id != 0):
-    params = {"params":{"idList":video_id}}
-  res = request("GET",'/v3/api/multimodal/video/processing',{},token,device_info,params)
+  if (batch_id != 0):
+    params = {"batchInfoList":[{"batchID":batch_id, "batchType": batch_type}]}
+  res = request("POST",'/v4/api/multimodal/video/processing', params, token, device_info)
   print(res)
   return res
   
@@ -280,7 +288,7 @@ if __name__ == "__main__":
     # res = gen_video(token, "田径比赛冲线","images/WX20241107-171054@2x.png","23021",3)
     # print(res)
 
-    # res = get_video_status(token, 334012886839283714)
+    res = get_video_status(token, "366291243527061513", 1)
     # print(res)
     
     # cancel_res = cancel_video(token, "342659447560282116")

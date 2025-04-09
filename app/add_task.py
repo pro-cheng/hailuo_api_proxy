@@ -47,18 +47,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
             task.status = VideoTaskStatus.FAILED
             task.failed_msg = "System busy. Please try again tomorrow."
             db.commit()
-        
-        # 更新工作计数
-        # work_count = db.query(VideoTask).filter(
-        #     VideoTask.user_id == user_profile.user_id,
-        #     VideoTask.status.in_([
-        #         VideoTaskStatus.CREATE,
-        #         VideoTaskStatus.HL_QUEUE,
-        #         VideoTaskStatus.PROGRESS
-        #     ])
-        # ).count()
-        # user_profile.work_count = work_count
-        # db.commit()
+
         db.refresh(user_profile)
         
         if user_profile.work_count >= user_profile.concurrency_limit:
@@ -85,14 +74,11 @@ def process_single_user(user_profile: UserProfile, db_factory):
                 # 当前已有多个任务在队列中，只支持一次性生成0个
                 if res['statusInfo']['code'] == 2400013:
                     # 重新获取work count
-                    res = get_video_status(user_profile.token, 0)
-                    if res and res['data'] and res['data']['videoList']:
+                    res = get_video_status(user_profile.token, 0, 0)
+                    if res['statusInfo']['code'] == 0:
                         # 计算在线工作数量
-                        online_work_count = sum(
-                            1 for video in res['data']['videoList']
-                            if video['videoAsset']['status'] not in [2, 5, 14, 7]
-                        )
-                        user_profile.work_count = online_work_count
+                        user_profile.work_count = res['data']['processInfo']['onProcessingVideoNum']
+                        user_profile.img_work_count = res['data']['processInfo']['onProcessingImageNum']
                         db.commit()
                     break
                 # 封号
@@ -111,6 +97,8 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     continue
                     
                 task.video_id = res["data"]["id"]
+                task.batch_id = res["data"]["task"]["batchID"]
+                task.batch_type = 0
                 task.status = VideoTaskStatus.CREATE
                 user_profile.work_count += 1
                 db.commit()

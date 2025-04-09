@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
-from .hailuo_api import gen_video, cancel_video, get_video_status
+from .hailuo_api import gen_video, gen_image, cancel_video, get_video_status
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
@@ -30,7 +30,10 @@ def process_single_user(user_profile: UserProfile, db_factory):
               if task.video_id:
                 res = cancel_video(user_profile.token, task.video_id)
                 if res['statusInfo']['code'] == 0:
-                    user_profile.work_count -= 1
+                    if task.batch_type == 1:
+                        user_profile.img_work_count -= 1
+                    else:
+                        user_profile.work_count -= 1
             except Exception as e:
               print(f"Thread {thread_name} TaskId {task.id}: Cancel Video Error: {e}")
               print(traceback.format_exc())
@@ -50,15 +53,26 @@ def process_single_user(user_profile: UserProfile, db_factory):
 
         db.refresh(user_profile)
         
-        if user_profile.work_count >= user_profile.concurrency_limit:
-            return
+        # 获取任务队列 - 分别处理视频和图片任务
+        video_limit = max(1, user_profile.concurrency_limit - user_profile.work_count)
+        image_limit = max(1, user_profile.img_concurrency_limit - user_profile.img_work_count)
         
-        # 获取任务队列
-        limit = max(1, user_profile.concurrency_limit - user_profile.work_count)
-        task_queue = db.query(VideoTask).filter(
-            VideoTask.user_id == user_profile.user_id, 
-            VideoTask.status == VideoTaskStatus.QUEUE
-        ).limit(limit).all()
+        # 获取视频任务队列
+        video_task_queue = db.query(VideoTask).filter(
+            VideoTask.user_id == user_profile.user_id,
+            VideoTask.status == VideoTaskStatus.QUEUE,
+            VideoTask.batch_type == 0
+        ).limit(video_limit).all()
+        
+        # 获取图片任务队列
+        image_task_queue = db.query(VideoTask).filter(
+            VideoTask.user_id == user_profile.user_id,
+            VideoTask.status == VideoTaskStatus.QUEUE,
+            VideoTask.batch_type == 1
+        ).limit(image_limit).all()
+        
+        # 合并任务队列
+        task_queue = video_task_queue + image_task_queue
         
         for task in task_queue:
             try:
@@ -69,8 +83,20 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     continue
                 
                 print(f"Thread {thread_name} Selected User ID: {user_profile.id}, Token: {user_profile.token}, Work Count: {user_profile.work_count}")
-                res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
-                time.sleep(1)
+                
+                # 根据batch_type选择生成方法
+                if task.batch_type == 1:
+                    # 图片生成
+                    if user_profile.img_work_count >= user_profile.img_concurrency_limit:
+                        continue
+                    res = gen_image(user_profile.token, task.prompt, task.model_id, task.aspect_ratio)
+                else:
+                    # 视频生成
+                    if user_profile.work_count >= user_profile.concurrency_limit:
+                        continue
+                    res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
+                
+                time.sleep(0.5)
                 # 当前已有多个任务在队列中，只支持一次性生成0个
                 if res['statusInfo']['code'] == 2400013:
                     # 重新获取work count
@@ -83,14 +109,20 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     break
                 # 封号
                 if res['statusInfo']['code'] == 22:
-                    user_profile.work_count -= 1
+                    if task.batch_type == 1:
+                        user_profile.img_work_count -= 1
+                    else:
+                        user_profile.work_count -= 1
                     task.status = VideoTaskStatus.FAILED
                     task.failed_msg = 'All credits have been exhausted. Please try again tomorrow!'
                     db.commit()
                     print(f"Thread {thread_name}: processed user {user_profile.user_id} banned, {res['statusInfo']['message']}")
                     break
                 if res['statusInfo']['code'] != 0:
-                    user_profile.work_count -= 1
+                    if task.batch_type == 1:
+                        user_profile.img_work_count -= 1
+                    else:
+                        user_profile.work_count -= 1
                     task.status = VideoTaskStatus.FAILED
                     task.failed_msg = res['statusInfo']['message']
                     db.commit()
@@ -98,9 +130,11 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     
                 task.video_id = res["data"]["id"]
                 task.batch_id = res["data"]["task"]["batchID"]
-                task.batch_type = 0
                 task.status = VideoTaskStatus.CREATE
-                user_profile.work_count += 1
+                if task.batch_type == 1:
+                    user_profile.img_work_count += 1
+                else:
+                    user_profile.work_count += 1
                 db.commit()
                 db.refresh(task)
                 db.refresh(user_profile)
@@ -114,6 +148,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
                 db.commit()
                 print("gen video error", task.id, e)
                 print(traceback.format_exc())
+                time.sleep(1)
                 continue
                 
     finally:

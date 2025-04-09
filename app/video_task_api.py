@@ -38,6 +38,14 @@ class VideoTaskCreate(BaseModel):
     type: int = 0
     model_id: str = '23000'
 
+class ImageTaskCreate(BaseModel):
+    user_id: Optional[str] = None
+    prompt: str = ''
+    request_ip: str = ''
+    visitor_id: str = ''
+    model_id: str = 'image-01'
+    aspect_ratio: str = '16:9'
+
 def save_image_to_local(image_url: str):
     # 如果image_url为空，返回空路径
     if not image_url:
@@ -113,6 +121,48 @@ def create_video_task(video_task: VideoTaskCreate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(db_video_task)
     return db_video_task
+
+@router.post("/image_tasks_create")
+def create_image_task(image_task: ImageTaskCreate, db: Session = Depends(get_db), current_user: models.SystemUser = Depends(get_current_user)):
+    user_id = image_task.user_id
+    pix_user_profile = None
+    user_profiles = db.query(UserProfile).filter(UserProfile.u_id == current_user.id).all()
+    if len(user_profiles) == 0:
+        raise HTTPException(status_code=400, detail="用户不存在")
+    if user_id:
+        for user_profile in user_profiles:
+            if user_profile.user_id == user_id:
+                pix_user_profile = user_profile
+                break
+    if not pix_user_profile:
+        # 随机选择一个用户
+        pix_user_profile = random.choice(user_profiles)
+
+    db_image_task = VideoTask(
+        user_id=pix_user_profile.user_id,
+        u_id=current_user.id,
+        prompt=image_task.prompt,
+        request_ip=image_task.request_ip,
+        visitor_id=image_task.visitor_id,
+        model_id=image_task.model_id,
+        aspect_ratio=image_task.aspect_ratio,
+        batch_type=1,
+        video_id="",  # 默认值
+        coverURL="",  # 默认值
+        videoURL="",  # 默认值
+        status=VideoTaskStatus.QUEUE,
+        canRetry=0,  # 默认值
+        width=1920,  # 默认值
+        height=1080,  # 默认值
+        originFiles="[]",  # 默认值
+        canAppeal=0,  # 默认值
+        downloadURL=""  # 默认值
+    )
+    db_image_task.created_at = datetime.now()
+    db.add(db_image_task)
+    db.commit()
+    db.refresh(db_image_task)
+    return db_image_task
 
 
 @router.get("/video_tasks_list")

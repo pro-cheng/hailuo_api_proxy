@@ -227,7 +227,7 @@ def gen_video(token,desc,file_path,model_id,type):
     if type == 3:
       subject_detect_res = request("POST","/api/multimodal/subject/detect",{"fileID":file_id},token,device_info)
       if subject_detect_res['statusInfo']['code'] != 0:
-        print(subject_detect_res)
+        # print(subject_detect_res)
         return subject_detect_res
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
   res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
@@ -268,21 +268,21 @@ def get_video_status(token, batch_id, batch_type):
   if (batch_id != 0):
     params = {"batchInfoList":[{"batchID":batch_id, "batchType": batch_type}]}
   res = request("POST",'/v4/api/multimodal/video/processing', params, token, device_info)
-  print(res)
+  # print(res)
   return res
   
 def cancel_video(token, video_id):
     device_info = request_device_info(token)
     print(device_info, "cancel_video device_info")
     res = request("POST", "/api/multimodal/video/cancel", {"videoID": video_id}, token, device_info)
-    print(res)
+    # print(res)
     return res 
   
 def delete_video(token, video_id):
     device_info = request_device_info(token)
     print(device_info, "delete_video device_info")
     res = request("POST", "/v2/api/multimodal/video/delete", {"videoID": video_id}, token, device_info)
-    print(res)
+    # print(res)
     return res 
 
 if __name__ == "__main__":

@@ -15,9 +15,9 @@ import os
 DEVICE_INFO_EXPIRES = 10800
 # 伪装headers
 FAKE_HEADERS = {
-    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
     "Cache-Control": "no-cache",
-    "Origin": "https://hailuoai.video/",
+    "Origin": "https://hailuoai.video",
     "Pragma": "no-cache",
     "Priority": "u=1, i",
     "Sec-Ch-Ua": '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
@@ -42,7 +42,7 @@ FAKE_USER_DATA = {
     "browser_name": "chrome",
     "device_memory": 8,
     "cpu_core_num": 8,
-    "browser_language": "zh-CN",
+    "browser_language": "en-US",
     "browser_platform": "MacIntel",
     "screen_width": 1440,
     "screen_height": 900,

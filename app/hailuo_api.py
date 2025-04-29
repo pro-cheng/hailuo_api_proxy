@@ -34,6 +34,7 @@ FAKE_USER_DATA = {
     "device_platform": "web",
     "app_id": "3001",
     "version_code": "22202",
+    "biz_id": 0,
     "uuid": None,
     "device_id": None,
     "lang": "en",
@@ -288,12 +289,13 @@ def delete_video(token, video_id):
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
+    res = gen_video(token, "a cat", "", "23000", 1)
+
+    # res = gen_image(token, "a sexy woman", "image-01", "16:9")
+
     # delete_video(token, "350482372637220873")
 
-    # res = gen_video(token, "田径比赛冲线","images/WX20241107-171054@2x.png","23021",3)
-    # print(res)
-
-    res = get_video_status(token, "366291243527061513", 1)
+    # res = get_video_status(token, "366291243527061513", 1)
     # print(res)
     
     # cancel_res = cancel_video(token, "342659447560282116")

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
-from .hailuo_api import get_video_status
+from .hailuo_api import get_video_status, read_task
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import threading
@@ -70,13 +70,14 @@ def process_single_task(task_id: int, db_factory):
                 elif target_asset['status'] in [5, 14, 7]:
                     task.status = VideoTaskStatus.FAILED
                     user.work_count -= 1
+                    read_task(token, [task.video_id])
                 elif target_asset['status'] == 2:
                     task.status = VideoTaskStatus.SUCCESS
                     task.percent = 100
                     task.videoURL = target_asset['downloadURL']
                     task.downloadURL = target_asset['downloadURL']
                     user.work_count -= 1
-                
+                    read_task(token, [task.video_id])
                 # 设置失败信息
                 if target_asset.get('message'):
                     task.failed_msg = target_asset['message']

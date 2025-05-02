@@ -286,16 +286,24 @@ def delete_video(token, video_id):
     # print(res)
     return res 
 
+def read_task(token, videoList):
+    device_info = request_device_info(token)
+    print(device_info, "read_task device_info")
+    res = request("POST", "/v1/api/multimodal/task/read", {"videoList": videoList}, token, device_info)
+    print(res)
+    return res
+
+
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
-    res = gen_video(token, "a cat", "", "23000", 1)
+    # res = gen_video(token, "a cat", "", "23000", 1)
 
     # res = gen_image(token, "a sexy woman", "image-01", "16:9")
 
     # delete_video(token, "350482372637220873")
 
-    # res = get_video_status(token, "366291243527061513", 1)
+    # res = get_video_status(token, "374618969519284229", 1)
     # print(res)
     
     # cancel_res = cancel_video(token, "342659447560282116")

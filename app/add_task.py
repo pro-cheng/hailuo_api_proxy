@@ -3,12 +3,16 @@ from datetime import datetime, timedelta
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
 from .hailuo_api import gen_video, gen_image, cancel_video, get_video_status
+from .email_service import send_email
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 from sqlalchemy.orm import scoped_session, sessionmaker
 import threading
 import time
+
+# 全局变量，用于追踪上次发送邮件的时间
+_last_ban_email_time = datetime.min
 
 def process_single_user(user_profile: UserProfile, db_factory):
     """处理单个用户的任务"""
@@ -108,7 +112,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
                         db.commit()
                     break
                 # 封号
-                if res['statusInfo']['code'] == 22:
+                if res['statusInfo']['code'] == 22 or res['statusInfo']['code'] == 2400008:
                     if task.batch_type == 1:
                         user_profile.img_work_count -= 1
                     else:
@@ -117,7 +121,29 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     task.failed_msg = 'All credits have been exhausted. Please try again tomorrow!'
                     db.commit()
                     print(f"Thread {thread_name}: processed user {user_profile.user_id} banned, {res['statusInfo']['message']}")
-                    break
+                    
+                    # 检查是否需要发送邮件通知
+                    global _last_ban_email_time
+                    current_time = datetime.now()
+                    if current_time - _last_ban_email_time > timedelta(hours=1):
+                        email_content = f"""
+                        <h1>⚠️ User Account Banned Alert</h1>
+                        <p>A user account has been banned or exhausted credits:</p>
+                        <ul>
+                            <li>User ID: {user_profile.user_id}</li>
+                            <li>Error Code: {res['statusInfo']['code']}</li>
+                            <li>Error Message: {res['statusInfo']['message']}</li>
+                            <li>Time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}</li>
+                        </ul>
+                        """
+                        send_email(
+                            to="promaverickzzz@gmail.com",
+                            subject="⚠️ User Account Banned Alert",
+                            html_content=email_content
+                        )
+                        _last_ban_email_time = current_time
+                    
+                    break                
                 if res['statusInfo']['code'] != 0:
                     if task.batch_type == 1:
                         user_profile.img_work_count -= 1

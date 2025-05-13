@@ -98,7 +98,8 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     # 视频生成
                     if user_profile.work_count >= user_profile.concurrency_limit:
                         continue
-                    res = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
+                    res, origin_url = gen_video(user_profile.token, task.prompt, task.image_url, task.model_id, task.type)
+                    task.originURL = origin_url
                 
                 time.sleep(0.5)
                 # 当前已有多个任务在队列中，只支持一次性生成0个

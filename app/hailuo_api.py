@@ -199,7 +199,7 @@ def upload_to_oss(access_key_id, access_key_secret, security_token, local_file_p
     fileSize = str(os.path.getsize(local_file_path))
     res = request("POST","/v1/api/files/policy_callback",{"fileName":fileName,"originFileName":originFileName,"dir":dir,"endpoint":endpoint,"bucketName":bucket_name,"size":fileSize,"mimeType":extension,"fileMd5":fileMd5},token,device_info)
     # print(res)
-    return res['data']['fileID'],fileName,extension
+    return res['data']['fileID'],fileName,extension,res['data']['ossPath']
     
     
 
@@ -217,11 +217,12 @@ def gen_video(token,desc,file_path,model_id,type):
   device_info = request_device_info(token)
   print(device_info,"gen_video device_info")
   
+  origin_url = None
   fileList = []
   if file_path:
     ali_res = request("GET","/v1/api/files/request_policy",{},token,device_info)
     print(ali_res)
-    file_id,file_name,file_type = upload_to_oss(ali_res['data']['accessKeyId'], ali_res['data']['accessKeySecret'], ali_res['data']['securityToken'], file_path, ali_res["data"]["endpoint"] , ali_res['data']['bucketName'],ali_res['data']['dir'],token,device_info)
+    file_id,file_name,file_type,origin_url = upload_to_oss(ali_res['data']['accessKeyId'], ali_res['data']['accessKeySecret'], ali_res['data']['securityToken'], file_path, ali_res["data"]["endpoint"] , ali_res['data']['bucketName'],ali_res['data']['dir'],token,device_info)
     fileList.append({"id":file_id,"name":file_name,"type":file_type})
     print(fileList,"fileList")
     # 3:subject reference
@@ -233,7 +234,7 @@ def gen_video(token,desc,file_path,model_id,type):
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
   res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
   print("gen_video res",res)
-  return res
+  return res, origin_url
 
 def gen_image(token, desc, model_id, aspect_ratio):
     device_info = request_device_info(token)
@@ -298,6 +299,8 @@ if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
     # res = gen_video(token, "a cat", "", "23000", 1)
+    # res, origin_url = gen_video(token, "jump", "images/WX20241107-171054@2x.png", "23102", 2)
+    # print(res, origin_url)
 
     # res = gen_image(token, "a sexy woman", "image-01", "16:9")
 

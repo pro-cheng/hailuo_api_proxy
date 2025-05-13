@@ -98,6 +98,7 @@ class VideoTask(Base):
     image_type = Column(Enum("url", "local",name="image_type_enum"), nullable=True)  # 限制image_type为"url"、"local"或为空
     coverURL = Column(String, nullable=False)
     videoURL = Column(String, nullable=False)
+    originURL = Column(String, nullable=True)
     status = Column(Enum(VideoTaskStatus), nullable=False, index=True, server_default=VideoTaskStatus.QUEUE.value)  # 使用枚举类型定义status，并设置默认值为queue
     canRetry = Column(Integer, nullable=False)  # 使用Integer来表示布尔值
     failed_msg = Column(String, nullable=True) 

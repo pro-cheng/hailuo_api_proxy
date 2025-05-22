@@ -236,7 +236,7 @@ def gen_video(token,desc,file_path,model_id,type):
   print("gen_video res",res)
   return res, origin_url
 
-def gen_image(token, desc, model_id, aspect_ratio):
+def gen_image(token, desc, model_id, aspect_ratio, quantity):
     device_info = request_device_info(token)
     print(device_info, "gen_image device_info")
 
@@ -245,7 +245,7 @@ def gen_image(token, desc, model_id, aspect_ratio):
         "useOriginPrompt": False,
         "modelID": model_id,
         "aspectRatio": aspect_ratio,
-        "quantity": "1"
+        "quantity": str(quantity)
     }, token, device_info)
     print("gen_image res", res)
     return res

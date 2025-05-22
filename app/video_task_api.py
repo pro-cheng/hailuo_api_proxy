@@ -45,6 +45,7 @@ class ImageTaskCreate(BaseModel):
     visitor_id: str = ''
     model_id: str = 'image-01'
     aspect_ratio: str = '16:9'
+    quantity: int = 1
 
 def save_image_to_local(image_url: str):
     # 如果image_url为空，返回空路径
@@ -147,6 +148,7 @@ def create_image_task(image_task: ImageTaskCreate, db: Session = Depends(get_db)
         model_id=image_task.model_id,
         aspect_ratio=image_task.aspect_ratio,
         batch_type=1,
+        quantity=image_task.quantity,
         video_id="",  # 默认值
         coverURL="",  # 默认值
         videoURL="",  # 默认值

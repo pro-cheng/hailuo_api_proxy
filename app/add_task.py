@@ -93,7 +93,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
                     # 图片生成
                     if user_profile.img_work_count >= user_profile.img_concurrency_limit:
                         continue
-                    res = gen_image(user_profile.token, task.prompt, task.model_id, task.aspect_ratio)
+                    res = gen_image(user_profile.token, task.prompt, task.model_id, task.aspect_ratio, task.quantity)
                 else:
                     # 视频生成
                     if user_profile.work_count >= user_profile.concurrency_limit:

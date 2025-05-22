@@ -110,6 +110,8 @@ class VideoTask(Base):
     percent = Column(Integer, nullable=False, default=0)  # 进度百分比
     created_at = Column(DateTime(timezone=True), server_default=func.now())  # 创建时间
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())  # 更新时间
+    quantity = Column(Integer, nullable=False, default=1)
+    assets = Column(String, nullable=True)
 
 class SystemUser(Base):
     __tablename__ = "system_users"

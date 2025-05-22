@@ -1,3 +1,4 @@
+import json
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from .models import VideoTask, VideoTaskStatus, UserProfile
 from .database import SessionLocal
@@ -6,6 +7,24 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import threading
 import traceback
+
+def process_assets(batch_id, batchVideos):
+    assets = []
+    try:
+        for batch in batchVideos:
+            if batch['batchID'] == batch_id:
+                for asset in batch['assets']:
+                    assets.append({
+                        'id': asset.get('id', ''),
+                        'status': asset.get('status', ''),
+                        'url': asset.get('downloadURL', ''),
+                        'failed_msg': asset.get('message', ''),
+                    })
+        assets = json.dumps(assets)
+    except Exception as e:
+        print(f"Error processing assets: {e}")
+        print(traceback.format_exc())
+    return assets
 
 def process_single_task(task_id: int, db_factory):
     """处理单个视频任务"""
@@ -60,7 +79,7 @@ def process_single_task(task_id: int, db_factory):
                         break
                 if target_asset:
                     break
-
+            
             if target_asset:
                 task.status = VideoTaskStatus.HL_QUEUE
                 
@@ -69,10 +88,12 @@ def process_single_task(task_id: int, db_factory):
                     task.percent = target_asset['percent']
                 elif target_asset['status'] in [5, 14, 7]:
                     task.status = VideoTaskStatus.FAILED
+                    task.assets = process_assets(batch_id, res['data']['batchVideos'])
                     user.work_count -= 1
                     read_task(token, [task.video_id])
                 elif target_asset['status'] == 2:
                     task.status = VideoTaskStatus.SUCCESS
+                    task.assets = process_assets(batch_id, res['data']['batchVideos'])
                     task.percent = 100
                     task.videoURL = target_asset['downloadURL']
                     task.downloadURL = target_asset['downloadURL']
@@ -81,8 +102,8 @@ def process_single_task(task_id: int, db_factory):
                 # 设置失败信息
                 if target_asset.get('message'):
                     task.failed_msg = target_asset['message']
-                if "<wait>" in task.failed_msg:
-                    task.failed_msg = "Queuing..."
+                    if "<wait>" in task.failed_msg:
+                        task.failed_msg = "Queuing..."
 
                 # 更新其他视频信息
                 task.coverURL = target_asset['coverURL']

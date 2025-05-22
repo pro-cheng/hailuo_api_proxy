@@ -263,6 +263,7 @@ def get_user_info(token):
 # status: 14,message: "There is an issue with the text content, try using different content"
 # status: 7, message: "Failure to pass the review."
 # status: 22,message: "Account banned, unbanned by 2025-02-18 09:35:58.",
+# batch_type: 0:视频，1：图片
 def get_video_status(token, batch_id, batch_type):
   device_info = request_device_info(token)
   print(device_info,"get_video_status device_info")
@@ -299,15 +300,15 @@ if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
     # res = gen_video(token, "a cat", "", "23000", 1)
-    # res, origin_url = gen_video(token, "jump", "images/WX20241107-171054@2x.png", "23102", 2)
+    # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2)
     # print(res, origin_url)
 
     # res = gen_image(token, "a sexy woman", "image-01", "16:9")
 
     # delete_video(token, "350482372637220873")
 
-    # res = get_video_status(token, "374618969519284229", 1)
-    # print(res)
+    res = get_video_status(token, "381768933798420485", 0)
+    print(res)
     
     # cancel_res = cancel_video(token, "342659447560282116")
 

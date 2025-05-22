@@ -29,7 +29,7 @@ auth_router = APIRouter()
 # JWT 配置
 SECRET_KEY = "fyshark"  # 请使用更安全的密钥
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30*2*24*30
+ACCESS_TOKEN_EXPIRE_MINUTES = 30*2*24*30*12
 
 # Pydantic 模型用于请求体
 class UserCreate(BaseModel):

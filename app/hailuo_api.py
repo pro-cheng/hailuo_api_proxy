@@ -227,10 +227,10 @@ def gen_video(token,desc,file_path,model_id,type):
     print(fileList,"fileList")
     # 3:subject reference
     if type == 3:
-      subject_detect_res = request("POST","/api/multimodal/subject/detect",{"fileID":file_id},token,device_info)
+      subject_detect_res = request("POST","/v2/api/multimodal/subject/detect",{"fileID":file_id},token,device_info)
       if subject_detect_res['statusInfo']['code'] != 0:
         # print(subject_detect_res)
-        return subject_detect_res
+        return subject_detect_res,origin_url
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
   res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
   print("gen_video res",res)
@@ -301,14 +301,15 @@ if __name__ == "__main__":
     
     # res = gen_video(token, "a cat", "", "23000", 1)
     # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2)
+    # res, origin_url = gen_video(token, "jump", "images/2.png", "23021", 3)
     # print(res, origin_url)
 
     # res = gen_image(token, "a sexy woman", "image-01", "16:9")
 
     # delete_video(token, "350482372637220873")
 
-    res = get_video_status(token, "381768933798420485", 0)
-    print(res)
+    # res = get_video_status(token, "381768933798420485", 0)
+    # print(res)
     
     # cancel_res = cancel_video(token, "342659447560282116")
 

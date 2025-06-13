@@ -86,7 +86,7 @@ def process_single_task(task_id: int, db_factory):
                 # 处理不同的视频状态
                 if target_asset['status'] == 1:
                     task.percent = target_asset['percent']
-                elif target_asset['status'] in [5, 14, 7]:
+                elif target_asset['status'] in [3, 5, 14, 7]:
                     task.status = VideoTaskStatus.FAILED
                     task.assets = process_assets(batch_id, res['data']['batchVideos'])
                     user.work_count -= 1

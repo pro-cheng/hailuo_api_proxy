@@ -263,6 +263,7 @@ def get_user_info(token):
 # status: 14,message: "There is an issue with the text content, try using different content"
 # status: 7, message: "Failure to pass the review."
 # status: 22,message: "Account banned, unbanned by 2025-02-18 09:35:58.",
+# status: 3, message: "The content generation has failed. Please try again."
 # batch_type: 0:视频，1：图片
 def get_video_status(token, batch_id, batch_type):
   device_info = request_device_info(token)

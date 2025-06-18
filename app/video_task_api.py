@@ -37,6 +37,8 @@ class VideoTaskCreate(BaseModel):
     visitor_id: str = ''
     type: int = 0
     model_id: str = '23000'
+    duration_type: int = 1
+    resolution_type: int = 1
 
 class ImageTaskCreate(BaseModel):
     user_id: Optional[str] = None
@@ -105,6 +107,8 @@ def create_video_task(video_task: VideoTaskCreate, db: Session = Depends(get_db)
         visitor_id=video_task.visitor_id,
         model_id=video_task.model_id,
         type=video_task.type,
+        duration_type=video_task.duration_type,
+        resolution_type=video_task.resolution_type,
         video_id="",  # 默认值
         coverURL="",  # 默认值
         videoURL="",  # 默认值

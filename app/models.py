@@ -112,6 +112,8 @@ class VideoTask(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())  # 更新时间
     quantity = Column(Integer, nullable=False, default=1)
     assets = Column(String, nullable=True)
+    duration_type = Column(Integer, nullable=False, default=1)
+    resolution_type = Column(Integer, nullable=False, default=1)
 
 class SystemUser(Base):
     __tablename__ = "system_users"

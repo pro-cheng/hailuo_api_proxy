@@ -211,8 +211,10 @@ def get_account_status(token ):
   api_res = request("GET","/api/multimodal/video/processing",{},token,device_info)
 #   print("processing", api_res)
   return api_res
-        
-def gen_video(token,desc,file_path,model_id,type):
+
+# durationType: 1=6s  4=10s
+# resolutionType: 1=760P 2=1080P 3=768P        
+def gen_video(token,desc,file_path,model_id,type,durationType,resolutionType):
   
   device_info = request_device_info(token)
   print(device_info,"gen_video device_info")
@@ -232,7 +234,7 @@ def gen_video(token,desc,file_path,model_id,type):
         # print(subject_detect_res)
         return subject_detect_res,origin_url
     # {"desc":"","useOriginPrompt":false,"fileList":[{"id":"303172732407775240","name":"4adea3b6-3ed8-47ea-b96c-a360a2ad21c6.png","type":"png"}]}
-  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1"}, token, device_info)
+  res = request("POST", "/api/multimodal/generate/video", {"desc":desc,"useOriginPrompt":False,"fileList":fileList,"modelID":model_id, "quantity": "1", "durationType": durationType, "resolutionType": resolutionType}, token, device_info)
   print("gen_video res",res)
   return res, origin_url
 
@@ -300,7 +302,7 @@ def read_task(token, videoList):
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
-    # res = gen_video(token, "a cat", "", "23000", 1)
+    # res, origin_url = gen_video(token, "a beautiful japan woman see me suddenly, and run to me happy, POV", "", "23010", 1)
     # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2)
     # res, origin_url = gen_video(token, "jump", "images/2.png", "23021", 3)
     # print(res, origin_url)

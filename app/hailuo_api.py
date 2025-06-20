@@ -166,7 +166,11 @@ def request(method, uri, data, token, device_info, options=None):
     try:
         response = requests.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
         response_text = response.text
-        # print(response_text)
+        print("================")
+        print("data",data)
+        print("response.status_code",response.status_code)
+        print("response.text",response.text)
+        print("================")
         return json.loads(response_text)
     except RequestException as e:
         raise Exception(f"Request failed: {e}")
@@ -302,8 +306,8 @@ def read_task(token, videoList):
 if __name__ == "__main__":
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNzQ1NDIsInVzZXIiOnsiaWQiOiIzMDY4NTE3NTc5MDI4ODQ4NjciLCJuYW1lIjoieGlhb2NodW4gaGUiLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTU9mRnlscTFzSVI0NXlQZW9fT0lYTVBmY2FtZjVjc2tfT3dKMzRBaTBZQlczMkE9czk2LWMiLCJkZXZpY2VJRCI6IiIsImlzQW5vbnltb3VzIjpmYWxzZX19.RORVLdtkmomgO4g14LeMUwkLlWtifX8U_ka-1vKQWvk"
     
-    # res, origin_url = gen_video(token, "a beautiful japan woman see me suddenly, and run to me happy, POV", "", "23010", 1)
-    # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2)
+    # res, origin_url = gen_video(token, "a beautiful japan woman see me suddenly, and run to me happy, POV", "", "23010", 1, 1,1)
+    # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2, 1, 1)
     # res, origin_url = gen_video(token, "jump", "images/2.png", "23021", 3)
     # print(res, origin_url)
 

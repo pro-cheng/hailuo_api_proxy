@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 import hashlib
 import uuid
 import time
@@ -164,7 +165,8 @@ def request(method, uri, data, token, device_info, options=None):
     }
     headers.update(options.get("headers", {}))
     try:
-        response = requests.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
+        scraper = cloudscraper.create_scraper()
+        response = scraper.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
         response_text = response.text
         print("================")
         print("data",data)

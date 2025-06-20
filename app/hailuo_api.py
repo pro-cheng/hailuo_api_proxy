@@ -168,11 +168,11 @@ def request(method, uri, data, token, device_info, options=None):
         scraper = cloudscraper.create_scraper()
         response = scraper.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
         response_text = response.text
-        print("================")
-        print("data",data)
-        print("response.status_code",response.status_code)
-        print("response.text",response.text)
-        print("================")
+        # print("================")
+        # print("data",data)
+        # print("response.status_code",response.status_code)
+        # print("response.text",response.text)
+        # print("================")
         return json.loads(response_text)
     except RequestException as e:
         raise Exception(f"Request failed: {e}")

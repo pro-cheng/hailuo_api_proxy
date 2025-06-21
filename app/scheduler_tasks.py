@@ -53,7 +53,7 @@ def refresh_work_count():
         db.close()
 
 def monitor_failed_video_tasks():
-    """监控过去半小时内的失败视频任务，超过60条发送告警邮件"""
+    """监控过去半小时内的失败视频任务，超过100条发送告警邮件"""
     print("Monitoring failed video tasks...")
     
     # 获取数据库会话
@@ -65,14 +65,13 @@ def monitor_failed_video_tasks():
         # 查询过去半小时内失败的视频任务数量
         failed_count = db.query(VideoTask).filter(
             VideoTask.status == VideoTaskStatus.FAILED,
-            VideoTask.updated_at >= half_hour_ago,
-            VideoTask.failed_msg != "System busy. Please try again tomorrow."
+            VideoTask.created_at >= half_hour_ago,
         ).count()
         
         print(f"Failed video tasks in last 30 minutes: {failed_count}")
         
-        # 如果失败数量超过60条，发送告警邮件
-        if failed_count > 60:
+        # 如果失败数量超过100条，发送告警邮件
+        if failed_count > 100:
             # 构建邮件内容
             subject = f"🚨 视频任务失败告警 - {failed_count}条任务失败"
             

@@ -66,14 +66,14 @@ def process_single_user(user_profile: UserProfile, db_factory):
             VideoTask.user_id == user_profile.user_id,
             VideoTask.status == VideoTaskStatus.QUEUE,
             VideoTask.batch_type == 0
-        ).limit(video_limit).all()
+        ).order_by(VideoTask.priority.desc(), VideoTask.created_at.asc()).limit(video_limit).all()
         
         # 获取图片任务队列
         image_task_queue = db.query(VideoTask).filter(
             VideoTask.user_id == user_profile.user_id,
             VideoTask.status == VideoTaskStatus.QUEUE,
             VideoTask.batch_type == 1
-        ).limit(image_limit).all()
+        ).order_by(VideoTask.priority.desc(), VideoTask.created_at.asc()).limit(image_limit).all()
         
         # 合并任务队列
         task_queue = video_task_queue + image_task_queue

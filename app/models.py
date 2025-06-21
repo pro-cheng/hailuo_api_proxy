@@ -114,6 +114,7 @@ class VideoTask(Base):
     assets = Column(String, nullable=True)
     duration_type = Column(Integer, nullable=False, default=1)
     resolution_type = Column(Integer, nullable=False, default=1)
+    priority = Column(Integer, nullable=False, default=0)
 
 class SystemUser(Base):
     __tablename__ = "system_users"

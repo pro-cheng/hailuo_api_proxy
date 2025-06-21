@@ -39,6 +39,7 @@ class VideoTaskCreate(BaseModel):
     model_id: str = '23000'
     duration_type: int = 1
     resolution_type: int = 1
+    priority: int = 0
 
 class ImageTaskCreate(BaseModel):
     user_id: Optional[str] = None
@@ -48,6 +49,7 @@ class ImageTaskCreate(BaseModel):
     model_id: str = 'image-01'
     aspect_ratio: str = '16:9'
     quantity: int = 1
+    priority: int = 0
 
 def save_image_to_local(image_url: str):
     # 如果image_url为空，返回空路径
@@ -109,6 +111,7 @@ def create_video_task(video_task: VideoTaskCreate, db: Session = Depends(get_db)
         type=video_task.type,
         duration_type=video_task.duration_type,
         resolution_type=video_task.resolution_type,
+        priority=video_task.priority,
         video_id="",  # 默认值
         coverURL="",  # 默认值
         videoURL="",  # 默认值
@@ -153,6 +156,7 @@ def create_image_task(image_task: ImageTaskCreate, db: Session = Depends(get_db)
         aspect_ratio=image_task.aspect_ratio,
         batch_type=1,
         quantity=image_task.quantity,
+        priority=image_task.priority,
         video_id="",  # 默认值
         coverURL="",  # 默认值
         videoURL="",  # 默认值

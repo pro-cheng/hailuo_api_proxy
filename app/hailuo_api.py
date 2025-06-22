@@ -57,6 +57,26 @@ device_info_map = {}
 # 设备信息请求队列映射
 device_info_request_queue_map = {}
 
+# 创建全局的cloudscraper实例，避免每次请求都创建新实例导致内存泄漏
+_global_scraper = None
+
+def get_scraper():
+    """获取全局的cloudscraper实例"""
+    global _global_scraper
+    if _global_scraper is None:
+        _global_scraper = cloudscraper.create_scraper()
+    return _global_scraper
+
+def reset_scraper():
+    """重置全局的cloudscraper实例"""
+    global _global_scraper
+    if _global_scraper:
+        try:
+            _global_scraper.close()
+        except:
+            pass
+    _global_scraper = None
+
 def request_device_info(token):
     if token in device_info_request_queue_map:
         print(f"Token: {token} in device_info_request_queue_map",device_info_request_queue_map[token])
@@ -92,24 +112,24 @@ def acquire_device_info(token):
         device_info_map[token] = result
     return result
 
-def check_file_url(file_url):
-    if is_base64_data(file_url):
-        return
-    try:
-        response = requests.head(file_url, timeout=15)
-        if response.status_code >= 400:
-            raise Exception(f"File {file_url} is not valid: [{response.status_code}] {response.reason}")
-        if "content-length" in response.headers:
-            file_size = int(response.headers["content-length"])
-            if file_size > FILE_MAX_SIZE:
-                raise Exception(f"File {file_url} exceeds size limit")
-    except RequestException as e:
-        raise Exception(f"Error checking file URL: {e}")
+# def check_file_url(file_url):
+#     if is_base64_data(file_url):
+#         return
+#     try:
+#         response = requests.head(file_url, timeout=15)
+#         if response.status_code >= 400:
+#             raise Exception(f"File {file_url} is not valid: [{response.status_code}] {response.reason}")
+#         if "content-length" in response.headers:
+#             file_size = int(response.headers["content-length"])
+#             if file_size > FILE_MAX_SIZE:
+#                 raise Exception(f"File {file_url} exceeds size limit")
+#     except RequestException as e:
+#         raise Exception(f"Error checking file URL: {e}")
 
-def upload_file(file_url, token):
-    check_file_url(file_url)
-    # Implement file upload logic here
-    pass
+# def upload_file(file_url, token):
+#     check_file_url(file_url)
+#     # Implement file upload logic here
+#     pass
 
 def check_result(result):
     if not result:
@@ -165,7 +185,8 @@ def request(method, uri, data, token, device_info, options=None):
     }
     headers.update(options.get("headers", {}))
     try:
-        scraper = cloudscraper.create_scraper()
+        # 使用全局的scraper实例，避免每次创建新实例
+        scraper = get_scraper()
         response = scraper.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
         response_text = response.text
         # print("================")
@@ -175,6 +196,17 @@ def request(method, uri, data, token, device_info, options=None):
         # print("================")
         return json.loads(response_text)
     except RequestException as e:
+        # 如果请求失败，尝试重置scraper并重试一次
+        try:
+            print(f"Request failed, resetting scraper and retrying: {e}")
+            reset_scraper()
+            scraper = get_scraper()
+            response = scraper.request(method, f"https://hailuoai.video{full_uri}", json=data, headers=headers, timeout=15)
+            response_text = response.text
+            return json.loads(response_text)
+        except RequestException as retry_e:
+            raise Exception(f"Request failed after retry: {retry_e}")
+    except Exception as e:
         raise Exception(f"Request failed: {e}")
 
 # 其他函数可以根据需要进行转换

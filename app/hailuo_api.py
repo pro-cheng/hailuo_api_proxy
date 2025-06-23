@@ -343,6 +343,7 @@ if __name__ == "__main__":
     # res, origin_url = gen_video(token, "a beautiful japan woman see me suddenly, and run to me happy, POV", "", "23010", 1, 1,1)
     # res, origin_url = gen_video(token, "jump", "images/1.png", "23102", 2, 1, 1)
     # res, origin_url = gen_video(token, "jump", "images/2.png", "23021", 3)
+    # res, origin_url = gen_video(token, "a beautiful japan woman see me suddenly, and run to me happy, POV", "", "23200", 4,1,1)
     # print(res, origin_url)
 
     # res = gen_image(token, "a sexy woman", "image-01", "16:9")

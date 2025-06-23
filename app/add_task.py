@@ -48,7 +48,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
         tasks = db.query(VideoTask).filter(
             VideoTask.user_id == user_profile.user_id,
             VideoTask.status.in_([VideoTaskStatus.QUEUE]),
-            VideoTask.created_at < datetime.now() - timedelta(hours=3)
+            VideoTask.created_at < datetime.now() - timedelta(hours=1.5)
         ).all()
         for task in tasks:
             task.status = VideoTaskStatus.FAILED

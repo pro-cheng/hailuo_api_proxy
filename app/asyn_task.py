@@ -139,7 +139,7 @@ def sync_hailuo_tasks():
                 VideoTaskStatus.HL_QUEUE,
                 VideoTaskStatus.PROGRESS
             ])
-        ).all()
+        ).order_by(VideoTask.priority.desc(), VideoTask.created_at.asc()).all()
         
         task_ids = [task.id for task in tasks_to_sync]
         
@@ -150,7 +150,7 @@ def sync_hailuo_tasks():
         ))
         
         # 使用线程池处理任务
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [
                 executor.submit(process_single_task, task_id, db_factory)
                 for task_id in task_ids

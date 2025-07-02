@@ -150,7 +150,7 @@ def sync_hailuo_tasks():
         ))
         
         # 使用线程池处理任务
-        with ThreadPoolExecutor(max_workers=10) as executor:
+        with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [
                 executor.submit(process_single_task, task_id, db_factory)
                 for task_id in task_ids

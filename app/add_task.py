@@ -26,7 +26,7 @@ def process_single_user(user_profile: UserProfile, db_factory):
         # 处理超时任务
         tasks = db.query(VideoTask).filter(
             VideoTask.user_id == user_profile.user_id,
-            VideoTask.status.in_([VideoTaskStatus.CREATE, VideoTaskStatus.HL_QUEUE, VideoTaskStatus.PROGRESS]),
+            VideoTask.status.in_([VideoTaskStatus.QUEUE, VideoTaskStatus.CREATE, VideoTaskStatus.HL_QUEUE, VideoTaskStatus.PROGRESS]),
             VideoTask.created_at < datetime.now() - timedelta(hours=1)
         ).all()
         for task in tasks:
@@ -41,16 +41,6 @@ def process_single_user(user_profile: UserProfile, db_factory):
             except Exception as e:
               print(f"Thread {thread_name} TaskId {task.id}: Cancel Video Error: {e}")
               print(traceback.format_exc())
-            task.status = VideoTaskStatus.FAILED
-            task.failed_msg = "System busy. Please try again tomorrow."
-            db.commit()
-            
-        tasks = db.query(VideoTask).filter(
-            VideoTask.user_id == user_profile.user_id,
-            VideoTask.status.in_([VideoTaskStatus.QUEUE]),
-            VideoTask.created_at < datetime.now() - timedelta(hours=1.5)
-        ).all()
-        for task in tasks:
             task.status = VideoTaskStatus.FAILED
             task.failed_msg = "System busy. Please try again tomorrow."
             db.commit()
